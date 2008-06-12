@@ -3,14 +3,14 @@ use warnings;
 use strict;
 
 use lib 'lib';
-use Test::More tests => 3;
+use Test::More tests => 4;
 
-#use Log::Report mode => 3;
-use Geo::GML::3_0_1;
+use Geo::GML;
 use Geo::GML::Util    ':gml301';
 
-my $gml = Geo::GML::3_0_1->new('RW');
-isa_ok($gml, 'Geo::GML::3_0_1');
+my $gml = Geo::GML->new('RW', version => '3.0.1');
+isa_ok($gml, 'Geo::GML');
+is($gml->version, '3.0.1');
 
 use XML::Compile::Util qw/pack_type/;
 my $type = pack_type NS_GML_301, 'RectifiedGridCoverage';

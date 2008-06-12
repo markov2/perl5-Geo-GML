@@ -3,6 +3,22 @@
 All change made by Mark Overmeer, unless explicitly assigned to
 someone else.
 
+version 0.11: Thu Jun 12 09:31:12 CEST 2008
+
+	Changes:
+
+	- removed all the ::2_0_0 (and so on) extensions, merging the
+	  specifics into Geo::GML itseld.  This simplifies the
+	  implementation a lot.
+
+	Improvements:
+
+	- added t/pod.t for pod tests.
+
+	- fixed the copyright statement in the manual-pages.
+
+	- reference to new module Geo::ISO19139
+
 version 0.10: Mon Jun  9 14:04:35 CEST 2008
 
 	- initial release

@@ -19,7 +19,7 @@ our @gml321  = qw/NS_GML_32 NS_GML_321
 
 our @proto   = qw/NS_GML NS_GML_32 NS_GML_SF/;
 
-our @EXPORT_OK =
+our @EXPORT  =
  ( @proto
  , @gml200, @gml211, @gml212, @gml2120, @gml2121
  , @gml300, @gml301, @gml310, @gml311, @gml321

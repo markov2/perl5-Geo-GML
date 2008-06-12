@@ -3,14 +3,14 @@ use warnings;
 use strict;
 
 use lib 'lib';
-use Test::More tests => 3;
+use Test::More tests => 4;
 
-#use Log::Report mode => 3;
-use Geo::GML::2_1_2;
+use Geo::GML;
 use Geo::GML::Util    ':gml212';
 
-my $gml = Geo::GML::2_1_2->new('RW');
-isa_ok($gml, 'Geo::GML::2_1_2');
+my $gml = Geo::GML->new('RW', version => '2.1.2');
+isa_ok($gml, 'Geo::GML');
+is($gml->version, '2.1.2');
 
 use XML::Compile::Util qw/pack_type/;
 my $type = pack_type NS_GML_212, 'MultiPolygon';

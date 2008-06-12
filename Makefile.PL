@@ -4,15 +4,15 @@ use 5.008;
 
 WriteMakefile
  ( NAME	 	=> 'Geo::GML'
- , VERSION	=> '0.10'
+ , VERSION	=> '0.11'
  , PREREQ_PM    =>
-   { XML::Compile              => 0.84
-   , XML::Compile::Tester      => 0.02
-   , XML::Compile::Cache       => '0.10'
-   , Log::Report               => 0.19
+   { XML::Compile         => 0.84
+   , XML::Compile::Tester => 0.02
+   , XML::Compile::Cache  => '0.10'
+   , Log::Report          => 0.19
 
-   , Test::More                => 0.54
-   , Test::Pod                 => '1.00'
+   , Test::More           => 0.54
+   , Test::Pod            => '1.00'
    }
 
  , EXE_FILES    => []
@@ -33,5 +33,5 @@ LICENSE         = artistic
 FIRST_YEAR      = 2008
 EMAIL           = perl@overmeer.net
 WEBSITE         = http://perl.overmeer.net/geo/
-PODTAIL		= ../Geo-shared-podtail
+PODTAIL		= PODTAIL.txt
 __POSTAMBLE

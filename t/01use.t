@@ -3,7 +3,7 @@ use warnings;
 use strict;
 
 use lib 'lib';
-use Test::More tests => 12;
+use Test::More tests => 2;
 
 # The versions of the following packages are reported to help understanding
 # the environment in which the tests are run.  This is certainly not a
@@ -25,15 +25,5 @@ foreach my $package (@show_versions)
     warn "$package $report\n";
 }
 
-use_ok('Geo::GML');
 use_ok('Geo::GML::Util');
-use_ok('Geo::GML::2_1_2_0');
-use_ok('Geo::GML::2_1_2_1');
-use_ok('Geo::GML::3_0_0');
-use_ok('Geo::GML::3_0_1');
-use_ok('Geo::GML::3_1_0');
-use_ok('Geo::GML::3_1_1');
-use_ok('Geo::GML::3_2_1');
-use_ok('Geo::GML::2_0_0');
-use_ok('Geo::GML::2_1_1');
-use_ok('Geo::GML::2_1_2');
+use_ok('Geo::GML');
