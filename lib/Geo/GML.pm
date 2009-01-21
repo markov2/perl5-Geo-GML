@@ -2,11 +2,11 @@ use warnings;
 use strict;
 
 package Geo::GML;
+use base 'XML::Compile::Cache';
 
 use Geo::GML::Util;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
-use XML::Compile::Cache ();
 use XML::Compile::Util  qw/unpack_type pack_type/;
 
 # map namespace always to the newest implementation of the protocol
@@ -38,18 +38,21 @@ my %info =
                  , schemas  => [ 'gml3.1.1/{base,smil,xlink}/*.xsd'
                                , 'gml3.1.1/profile/*/*/*.xsd' ] }
   , '3.2.1'   => { prefixes => {gml => NS_GML_321, smil => NS_SMIL_20 }
-                 , schemas  => [ 'gml3.2.1/*.xsd' ] }
+                 , schemas  => [ 'gml3.2.1/*.xsd', 'gml3.1.1/smil/*.xsd' ] }
   );
 
 # This list must be extended, but I do not know what people need.
 my @declare_always =
     qw/gml:TopoSurface/;
 
+# for Geo::EOP and other stripped-down GML versions
+sub _register_gml_version($$) { $info{$_[1]} = $_[2] }
+
 =chapter NAME
 Geo::GML - Geography Markup Language processing
 
 =chapter SYNOPSIS
- use Geo::GML   qw/gml321/;
+ use Geo::GML ':gml321';
 
  my $gml = Geo::GML->new('READER', version => '3.2.1');
 
@@ -58,11 +61,17 @@ Geo::GML - Geography Markup Language processing
  my $xml  = $gml->writer($sometype)->($doc, $perldata);
 
  # or without help of the cache, XML::Compile::Schema
- my $r    = $gml->schemas->compile(READER => $sometype);
+ my $r    = $gml->compile(READER => $sometype);
  my $data = $r->($xml);
 
  # overview (large) on all defined elements
  $gml->printIndex;
+
+ # To discover the perl datastructures to be passed
+ print $gml->template("gml:Surface");
+
+ # autoloaded logic to convert Geo::Point into GML
+ $data->{...somewhere...} = $gml->GPtoGML($objects);
 
 =chapter DESCRIPTION
 Provides access to the GML definitions specified in XML.  The details
@@ -83,9 +92,6 @@ have the knowledge about what is needed.
 =section Constructors
 =c_method new 'READER'|'WRITER'|'RW', OPTIONS
 
-=option   schemas XML::Compile::Cache object
-=default  schemas <created internally>
-
 =requires version VERSION|NAMESPACE
 Only used when the object is created directly from this base-class.  It
 determines which GML syntax is to be used.  Can be a VERSION like "3.1.1"
@@ -105,15 +111,37 @@ daemon later.  So: "false" would be a good setting.  However, on the moment,
 the developer of this module has no idea which types people will use.
 Please help me with the specs!
 
+=default any_element C<ATTEMPT>
+All C<any> elements will be ATTEMPTed to be processed at run-time
+by default.
+
+=default opts_rw <some>
+The GML specification will require PREFIXED key rewrite, because the
+complexity of namespaces is enormous.  Besides, mixed elements are
+processed as STRUCTURAL by default (mixed in texts ignored).
+
+
 =cut
 
 sub new($@)
 {   my ($class, $dir) = (shift, shift);
-    (bless {}, $class)->init( {direction => $dir, @_} );
+    $class->SUPER::new(direction => $dir, @_);
 }
 
 sub init($)
 {   my ($self, $args) = @_;
+    $args->{allow_undeclared} = 1
+        unless exists $args->{allow_undeclared};
+
+    $args->{opts_rw} = { @{$args->{opts_rw}} }
+        if ref $args->{opts_rw} eq 'ARRAY';
+    $args->{opts_rw}{key_rewrite} = 'PREFIXED';
+    $args->{opts_rw}{mixed_elements} = 'STRUCTURAL';
+
+    $args->{any_element}         ||= 'ATTEMPT';
+
+    $self->SUPER::init($args);
+
     $self->{GG_dir} = $args->{direction} or panic "no direction";
 
     my $version     =  $args->{version}
@@ -127,34 +155,22 @@ sub init($)
     $self->{GG_version} = $version;    
     my $info    = $info{$version};
 
-    my %prefs   = %{$info->{prefixes}};
-    my @xsds    = @{$info->{schemas}};
-
-    # all known schemas need xlink
-    $prefs{xlink} = NS_XLINK_1999;
-    push @xsds, 'xlink1.0.0/*.xsd';
-
-    my $undecl
-      = exists $args->{allow_undeclared} ? $args->{allow_undeclared} : 1;
-
-    my $schemas = $self->{GG_schemas} = $args->{schemas}
-     || XML::Compile::Cache->new
-         ( prefixes         => \%prefs
-         , allow_undeclared => $undecl
-         );
+    $self->prefixes(xlink => NS_XLINK_1999, %{$info->{prefixes}});
 
     (my $xsd = __FILE__) =~ s!\.pm!/xsd!;
-    $schemas->importDefinitions( [map {glob "$xsd/$_"} @xsds] );
+    my @xsds    = map {glob "$xsd/$_"}
+        @{$info->{schemas} || []}, 'xlink1.0.0/*.xsd';
+
+    $self->importDefinitions(\@xsds);
     $self;
 }
 
 sub declare(@)
 {   my $self = shift;
 
-    my $schemas   = $self->schemas;
     my $direction = $self->direction;
 
-    $schemas->declare($direction, $_)
+    $self->declare($direction, $_)
         for @_, @declare_always;
 
     $self;
@@ -164,9 +180,6 @@ sub declare(@)
 
 =section Accessors
 
-=method schemas
-Returns the internal schema object, type M<XML::Compile::Cache>.
-
 =method version
 GML version, for instance '3.2.1'.
 
@@ -174,13 +187,12 @@ GML version, for instance '3.2.1'.
 Returns 'READER', 'WRITER', or 'RW'.
 =cut
 
-sub schemas()   {shift->{GG_schemas}}
 sub version()   {shift->{GG_version}}
 sub direction() {shift->{GG_dir}}
 
 #---------------------------------
 
-=section Helpers
+=section Compilers
 
 =method template 'PERL'|'XML', TYPE, OPTIONS
 See M<XML::Compile::Schema::template()>.  This will create an example
@@ -192,30 +204,50 @@ the need to collect all the GML XML files yourself.
   use Geo::GML;
   use Geo::GML::Util     qw/NS_GML_321/;
   use XML::Compile::Util qw/pack_type/;
-  my $type = pack_type NS_GML_321, 'RectifiedGridCoverage';
-  my $gml  = Geo::GML->new(version => NS_GML_321);
-  print $gml->template(PERL => $type);
+  my $gml   = Geo::GML->new(version => NS_GML_321);
+
+  # to simplify the output, reducing often available large blocks
+  my @types = qw/gml:MetaDataPropertyType gml:StringOrRefType
+     gml:ReferenceType/;
+  my %hook  = (type => \@collapse_types, replace => 'COLLAPSE');
+
+  # generate the data-structure
+  my $type  = 'gml:RectifiedGridCoverage';  # any element name
+  print $gml->template(PERL => $type, hook => \%hook);
 =cut
 
-sub template($$@)
-{   my ($self, $format, $type) = (shift, shift, shift);
-    $self->schemas->template($format, $type, @_);
-}
+# just added as example, implemented in super-class
+
+#------------------
+
+=section Helpers
+
+=section Administration
 
 =method printIndex [FILEHANDLE], OPTIONS
-List all the elements which can be produced with the schema.  This will
-call M<XML::Compile::Cache::printIndex()> to show (by default) only
-the elements and exclude the abstract elements from the list.
-
-The selected FILEHANDLE is the default.  OPTIONS overrule the defaults
-which are passed to that C<printIndex()>.
+List all the elements which can be produced with the schema.  By default,
+this only shows the elements and excludes the abstract elements from
+the list.  The selected FILEHANDLE is the default to print to.
 =cut
 
 sub printIndex(@)
 {   my $self = shift;
     my $fh   = @_ % 2 ? shift : select;
-    $self->schemas->printIndex($fh
+    $self->SUPER::printIndex($fh
       , kinds => 'element', list_abstract => 0, @_); 
+}
+
+our $AUTOLOAD;
+sub AUTOLOAD(@)
+{   my $self = shift;
+    my $call = $AUTOLOAD;
+    return if $call =~ m/::DESTROY$/;
+    my ($pkg, $method) = $call =~ m/(.+)\:\:([^:]+)$/;
+    $method eq 'GPtoGML'
+        or error __x"method {name} not implemented", name => $call;
+    eval "require Geo::GML::GeoPoint";
+    panic $@ if $@;
+    $self->$call(@_);
 }
 
 1;

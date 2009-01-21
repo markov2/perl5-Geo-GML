@@ -2,6 +2,7 @@ ChangeLog
 MANIFEST
 Makefile.PL
 lib/Geo/GML.pm
+lib/Geo/GML/GeoPoint.pm
 lib/Geo/GML/Util.pm
 lib/Geo/GML/xsd/ReadMe.txt
 lib/Geo/GML/xsd/gml1.0.0/gml.rdfs
@@ -297,4 +298,6 @@ t/26gml301.t
 t/27gml310.t
 t/28gml311.t
 t/29gml321.t
+t/40gpgml3.t
+t/41gpgml2.t
 t/pod.t

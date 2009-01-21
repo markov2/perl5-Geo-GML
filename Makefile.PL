@@ -4,11 +4,11 @@ use 5.008;
 
 WriteMakefile
  ( NAME	 	=> 'Geo::GML'
- , VERSION	=> '0.11'
+ , VERSION	=> '0.12'
  , PREREQ_PM    =>
-   { XML::Compile         => 0.84
-   , XML::Compile::Tester => 0.02
-   , XML::Compile::Cache  => '0.10'
+   { XML::Compile         => '1.00'
+   , XML::Compile::Tester => 0.04
+   , XML::Compile::Cache  => '0.90'
    , Log::Report          => 0.19
 
    , Test::More           => 0.54
@@ -29,9 +29,11 @@ RAWDIR          = ../public_html/geo-gml/raw
 DISTDIR         = ../public_html/geo-gml/source
 LICENSE         = artistic
 
+EXTENDS		= ../XMLCache:../XMLCompile
+
 # for POD
 FIRST_YEAR      = 2008
 EMAIL           = perl@overmeer.net
 WEBSITE         = http://perl.overmeer.net/geo/
-PODTAIL		= PODTAIL.txt
+PODTAIL		= ../Geo-ogc-podtail
 __POSTAMBLE

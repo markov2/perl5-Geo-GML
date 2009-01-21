@@ -43,7 +43,15 @@ our %EXPORT_TAGS =
 Geo::GML::Util - GML useful constants
 
 =chapter SYNOPSIS
+  use Geo::GML;
+  use Geo::GML::Util ':gml311';
+
 =chapter DESCRIPTION
+
+XML uses long URLs to represent name-spaces, which must be used without
+typos.  Therefore, it is better to use constants instead: the main
+purpose for this module.
+
 =chapter FUNCTIONS
 
 =section Constants

@@ -1,7 +1,33 @@
 === version history of Geo::GML
 
-All change made by Mark Overmeer, unless explicitly assigned to
+All change mades by Mark Overmeer, unless explicitly assigned to
 someone else.
+
+version 0.12: Wed Jan 21 11:50:00 CET 2009
+
+	Fixes:
+
+	- version 3.2.1 needs smil spec of 3.1.1
+
+	- require XML::Compile 1.00 for xlink fixes.
+
+	Changes:
+
+	- extend from XML::Compile::Cache, instead of having it as
+	  helper object.
+
+	- key_rewrite will be PREFIXED always.
+
+	Improvements:
+
+	- share man-page tail with other Geo::* modules.
+
+	- doc hint about use of template()
+
+	- direct availability of Geo::Proj object for all shapes via
+	  new proj4() method.
+
+	- allow other GML versions to be registered (used by Geo::EOP)
 
 version 0.11: Thu Jun 12 09:31:12 CEST 2008
 
