@@ -3,7 +3,17 @@
 All change mades by Mark Overmeer, unless explicitly assigned to
 someone else.
 
-version 0.12: Wed Jan 21 11:50:00 CET 2009
+version 0.13: Wed Jan 21 12:03:29 CET 2009
+
+	Changes:
+
+	- key_rewrite will be PREFIXED always.
+
+	Fixes:
+
+	- documentation production fixes.
+
+version 0.12: Wed Jan 21 11:18:00 CET 2009
 
 	Fixes:
 
@@ -15,8 +25,6 @@ version 0.12: Wed Jan 21 11:50:00 CET 2009
 
 	- extend from XML::Compile::Cache, instead of having it as
 	  helper object.
-
-	- key_rewrite will be PREFIXED always.
 
 	Improvements:
 
