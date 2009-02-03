@@ -12,6 +12,8 @@ my @show_versions =
  qw/Test::More
     XML::Compile
     XML::Compile::Cache
+    Geo::Point
+    Geo::Proj4
    /;
 
 foreach my $package (@show_versions)
@@ -19,7 +21,7 @@ foreach my $package (@show_versions)
 
     no strict 'refs';
     my $report
-      = !$@    ? "version ". (${"package\::VERSION"} || 'unknown')
+      = !$@    ? "version ". (${"$package\::VERSION"} || 'unknown')
       : $@ =~ m/^Can't locate/ ? "not installed"
       : "reports error";
 

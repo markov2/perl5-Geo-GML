@@ -300,4 +300,4 @@ t/28gml311.t
 t/29gml321.t
 t/40gpgml3.t
 t/41gpgml2.t
-t/pod.t
+t/99pod.t

@@ -90,6 +90,7 @@ have the knowledge about what is needed.
 =chapter METHODS
 
 =section Constructors
+
 =c_method new 'READER'|'WRITER'|'RW', OPTIONS
 
 =requires version VERSION|NAMESPACE
@@ -119,7 +120,6 @@ by default.
 The GML specification will require PREFIXED key rewrite, because the
 complexity of namespaces is enormous.  Besides, mixed elements are
 processed as STRUCTURAL by default (mixed in texts ignored).
-
 
 =cut
 

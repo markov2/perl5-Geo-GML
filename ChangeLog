@@ -3,6 +3,16 @@
 All change mades by Mark Overmeer, unless explicitly assigned to
 someone else.
 
+version 0.14: Tue Feb  3 13:09:59 CET 2009
+
+	Fixes:
+
+	- do not use /bin/pwd in t/pod.t
+
+	- fix version report in t/01use.t
+
+	- check minimal version of option Geo::Point in Makefile.PL
+
 version 0.13: Wed Jan 21 12:03:29 CET 2009
 
 	Changes:
