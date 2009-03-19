@@ -3,6 +3,12 @@
 All change mades by Mark Overmeer, unless explicitly assigned to
 someone else.
 
+version 0.15: Thu Mar 19 09:18:12 CET 2009
+
+	Improvements:
+
+	- implement from().  Added examples/read_gml.pl
+
 version 0.14: Tue Feb  3 13:09:59 CET 2009
 
 	Fixes:

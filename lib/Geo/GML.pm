@@ -7,7 +7,7 @@ use base 'XML::Compile::Cache';
 use Geo::GML::Util;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
-use XML::Compile::Util  qw/unpack_type pack_type/;
+use XML::Compile::Util  qw/unpack_type pack_type type_of_node/;
 
 # map namespace always to the newest implementation of the protocol
 my %ns2version =
@@ -63,6 +63,9 @@ Geo::GML - Geography Markup Language processing
  # or without help of the cache, XML::Compile::Schema
  my $r    = $gml->compile(READER => $sometype);
  my $data = $r->($xml);
+
+ # super simple
+ my ($type, $data) = Geo::GML->from('data.xml');
 
  # overview (large) on all defined elements
  $gml->printIndex;
@@ -174,6 +177,39 @@ sub declare(@)
         for @_, @declare_always;
 
     $self;
+}
+
+=c_method from XMLDATA, OPTIONS
+Read a EOP structure from a data source, which can be anything acceptable
+by M<dataToXML()>: a M<XML::LibXML::Element>, XML as string or ref-string,
+filename, filehandle or known namespace.
+
+Returned is the product (the type of the root node) and the parsed
+data-structure.  The EOP version used for decoding is autodetected,
+unless specified.
+
+See F<examples/read_gml.pl>
+
+=example
+  my ($type, $data) = Geo::GML->from('data.xml');
+
+=cut
+
+sub from($@)
+{   my ($class, $data, %args) = @_;
+    my $xml = XML::Compile->dataToXML($data);
+
+    my $top = type_of_node $xml;
+    my $ns  = (unpack_type $top)[0];
+
+    my $version = $ns2version{$ns}
+        or error __x"unknown GML version with namespace {ns}", ns => $ns;
+
+    my $self = $class->new('READER', version => $version);
+    my $r   = $self->reader($top, %args)
+        or error __x"root node `{top}' not recognized", top => $top;
+
+    ($top, $r->($xml));
 }
 
 #---------------------------------
