@@ -5,7 +5,7 @@ use strict;
 package Geo::GML;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
-use Geo::Point         ();
+use Geo::Point  ();
 
 =chapter NAME
 Geo::GML::GeoPoint - convert Geo::Point objects into GML
@@ -52,7 +52,8 @@ sub GPtoGML($@)
     if($self->version lt 3)
     {   local $args{_srsName} = $srs;
         $data
-        = $object->isa('Geo::Surface') ? $self->_gml2_surface($object, \%args)
+        = $object->isa('Geo::Space')   ? $self->_gml2_space($object, \%args)
+        : $object->isa('Geo::Surface') ? $self->_gml2_surface($object, \%args)
         : $object->isa('Geo::Line')    ? $self->_gml2_line($object, \%args)
         : $object->isa('Geo::Point')   ? $self->_gml2_point($object, \%args)
         : $object->isa('Geo::Shape')   ? $self->_gml2_shape($object, \%args)
@@ -61,7 +62,8 @@ sub GPtoGML($@)
     }
     else
     {   $data
-        = $object->isa('Geo::Surface') ? $self->_gml3_surface($object, \%args)
+        = $object->isa('Geo::Space')   ? $self->_gml3_space($object, \%args)
+        : $object->isa('Geo::Surface') ? $self->_gml3_surface($object, \%args)
         : $object->isa('Geo::Line')    ? $self->_gml3_line($object, \%args)
         : $object->isa('Geo::Point')   ? $self->_gml3_point($object, \%args)
         : $object->isa('Geo::Shape')   ? $self->_gml3_shape($object, \%args)
@@ -79,13 +81,14 @@ sub GPtoGML($@)
 ## GML2
 #
 
-sub _gml2_surface($$)
-{   my ($self, $surface, $args) = @_;
+sub _gml2_space($$)
+{   my ($self, $space, $args) = @_;
 
+    # wrong: Space can contain other objects as well.
     my @members;
-    foreach my $c ($surface->components)
-    {   my $outer = $self->_gml2_line($c->outer, $args);
-        my @inner = map { $self->_gml2_line($_, $args) } $c->inner;
+    foreach my $c ($space->components)
+    {   my $outer = $self->_gml2_line($c->geoOuter, $args);
+        my @inner = map { $self->_gml2_line($_, $args) } $c->geoInner;
         my %poly  = ( gml_outerBoundaryIs => $outer
                     , gml_innerBoundaryIs => \@inner);
         push @members, +{ gml_polygonMember => {gml_Polygon => \%poly} };
@@ -95,6 +98,18 @@ sub _gml2_surface($$)
       { seq_gml_polygonMember => \@members
       , srsName => $args->{_srsName}
       }
+    };
+}
+
+sub _gml2_surface($$)
+{   my ($self, $surface, $args) = @_;
+
+    my $outer = $self->_gml2_line($surface->geoOuter, $args);
+    my @inner = map { $self->_gml2_line($_, $args) } $surface->geoInner;
+    my %poly  = ( gml_outerBoundaryIs => $outer
+                , gml_innerBoundaryIs => \@inner);
+   +{ gml_Polygon => \%poly
+    , srsName     => $args->{_srsName}
     };
 }
 
@@ -135,13 +150,13 @@ sub _gml2_shape($$)
 ## GML3
 #
 
-sub _gml3_surface($$)
-{   my ($self, $surface, $args) = @_;
+sub _gml3_space($$)
+{   my ($self, $space, $args) = @_;
     my @members;
 
-    foreach my $c ($surface->components)
-    {   my $outer = $self->_gml3_line($c->outer, $args);
-        my @inner = map { $self->_gml3_line($_, $args) } $c->inner;
+    foreach my $c ($space->components)
+    {   my $outer = $self->_gml3_line($c->geoOuter, $args);
+        my @inner = map { $self->_gml3_line($_, $args) } $c->geoInner;
         my %poly  = (gml_exterior => $outer, gml_interior => \@inner);
         push @members, +{ gml_Polygon => \%poly };
     }
@@ -154,6 +169,16 @@ sub _gml3_surface($$)
         { $surftype => \@members }
       }
     };
+}
+
+sub _gml3_surface($$)
+{   my ($self, $surface, $args) = @_;
+    my @members;
+
+    my $outer = $self->_gml3_line($surface->geoOuter, $args);
+    my @inner = map { $self->_gml3_line($_, $args) } $surface->geoInner;
+    my %poly  = (gml_exterior => $outer, gml_interior => \@inner);
+    +{ gml_Polygon => \%poly };
 }
 
 sub _gml3_line($$)

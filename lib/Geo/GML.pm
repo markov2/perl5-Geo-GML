@@ -158,7 +158,7 @@ sub init($)
     $self->{GG_version} = $version;    
     my $info    = $info{$version};
 
-    $self->prefixes(xlink => NS_XLINK_1999, %{$info->{prefixes}});
+    $self->addPrefixes(xlink => NS_XLINK_1999, %{$info->{prefixes}});
 
     (my $xsd = __FILE__) =~ s!\.pm!/xsd!;
     my @xsds    = map {glob "$xsd/$_"}

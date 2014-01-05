@@ -5,7 +5,6 @@ use strict;
 use lib 'lib';
 use Test::More tests => 4;
 
-#use Log::Report mode => 3;
 use Geo::GML;
 use Geo::GML::Util    ':gml200';
 

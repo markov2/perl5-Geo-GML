@@ -38,7 +38,7 @@ my $line = Geo::Line->filled
   , proj => 'wgs84'
   );
 
-my $poly  = Geo::Surface->new($line);
+my $poly  = Geo::Space->new($line);
 #warn Dumper $poly;
 
 #$gml->printIndex(\*STDERR);
@@ -81,7 +81,8 @@ my $doc = XML::LibXML::Document->new('1.0', 'UTF-8');
 my $xml = $w->($doc, $expected);   # $expected===$data
 
 compare_xml($xml, <<'_XML');
-<gml:multiExtentOf xmlns:gml="http://www.opengis.net/gml">
+<gml:multiExtentOf xmlns:gml="http://www.opengis.net/gml"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
   <gml:MultiPolygon srsName="EPGS:4326">
     <gml:polygonMember>
       <gml:Polygon>
@@ -127,7 +128,8 @@ isa_ok($w2, 'CODE', 'centerOf');
 my $xml2 = $w2->($doc, $data2);
 
 compare_xml($xml2, <<'_XML');
-<gml:centerOf xmlns:gml="http://www.opengis.net/gml">
+<gml:centerOf xmlns:gml="http://www.opengis.net/gml"
+    xmlns:xlink="http://www.w3.org/1999/xlink">
   <gml:Point srsName="EPGS:4326">
     <gml:coord>
       <gml:X>53.477199</gml:X>

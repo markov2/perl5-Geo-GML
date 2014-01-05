@@ -2,17 +2,17 @@ use ExtUtils::MakeMaker;
 
 use 5.008;
 
-my $version = '0.15';
+my $version = '0.16';
 
 my %prereq  =
- ( XML::Compile         => '1.00'
- , XML::Compile::Tester => 0.04
- , XML::Compile::Cache  => '0.90'
- , Log::Report          => 0.19
-
- , Test::More           => 0.54
- , Test::Pod            => '1.00'
- );
+  ( XML::Compile         => '1.28'
+  , XML::Compile::Tester => '0.04'
+  , XML::Compile::Cache  => '0.995'
+  , Log::Report          => '0.19'
+ 
+  , Test::More           => '0.54'
+  , Test::Pod            => '1.00'
+  );
 
 # Upgrade Geo::Point only if installed, to avoid difficult indirect
 # installation of Geo::Proj4
@@ -25,14 +25,14 @@ else
 }
 
 WriteMakefile
- ( NAME	 	=> 'Geo::GML'
- , VERSION	=> $version
- , PREREQ_PM    => \%prereq
- , EXE_FILES    => []
- , AUTHOR       => 'Mark Overmeer'
- , ABSTRACT     => 'Process Geography Markup Language'
- , LICENSE      => 'perl'
- );
+  ( NAME      => 'Geo::GML'
+  , VERSION   => $version
+  , PREREQ_PM => \%prereq
+  , EXE_FILES => []
+  , AUTHOR    => 'Mark Overmeer'
+  , ABSTRACT  => 'Process Geography Markup Language'
+  , LICENSE   => 'perl'
+  );
 
 ### used by oodist during production of distribution
 sub MY::postamble { <<'__POSTAMBLE' }

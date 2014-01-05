@@ -2,6 +2,7 @@
 use warnings;
 use strict;
 
+#use Log::Report mode => 3;
 use lib 'lib';
 use Test::More tests => 4;
 
