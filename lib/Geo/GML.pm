@@ -8,6 +8,7 @@ use Geo::GML::Util;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
 use XML::Compile::Util  qw/unpack_type pack_type type_of_node/;
+use File::Glob          qw/bsd_glob/;
 
 # map namespace always to the newest implementation of the protocol
 my %ns2version =
@@ -94,7 +95,7 @@ have the knowledge about what is needed.
 
 =section Constructors
 
-=c_method new 'READER'|'WRITER'|'RW', OPTIONS
+=c_method new 'READER'|'WRITER'|'RW', %options
 
 =requires version VERSION|NAMESPACE
 Only used when the object is created directly from this base-class.  It
@@ -136,12 +137,12 @@ sub init($)
     $args->{allow_undeclared} = 1
         unless exists $args->{allow_undeclared};
 
-    $args->{opts_rw} = { @{$args->{opts_rw}} }
+    $args->{opts_rw} = +{ @{$args->{opts_rw}} }
         if ref $args->{opts_rw} eq 'ARRAY';
-    $args->{opts_rw}{key_rewrite} = 'PREFIXED';
+    $args->{opts_rw}{key_rewrite}    = 'PREFIXED';
     $args->{opts_rw}{mixed_elements} = 'STRUCTURAL';
 
-    $args->{any_element}         ||= 'ATTEMPT';
+    $args->{any_element}           ||= 'ATTEMPT';
 
     $self->SUPER::init($args);
 
@@ -156,13 +157,13 @@ sub init($)
         $version = $ns2version{$version};
     }
     $self->{GG_version} = $version;    
-    my $info    = $info{$version};
+    my $info = $info{$version};
 
     $self->addPrefixes(xlink => NS_XLINK_1999, %{$info->{prefixes}});
 
     (my $xsd = __FILE__) =~ s!\.pm!/xsd!;
-    my @xsds    = map {glob "$xsd/$_"}
-        @{$info->{schemas} || []}, 'xlink1.0.0/*.xsd';
+    my @xsds = map bsd_glob("$xsd/$_")
+      , @{$info->{schemas} || []}, 'xlink1.0.0/*.xsd';
 
     $self->importDefinitions(\@xsds);
     $self;
@@ -179,7 +180,7 @@ sub declare(@)
     $self;
 }
 
-=c_method from XMLDATA, OPTIONS
+=c_method from $xmldata, %options
 Read a EOP structure from a data source, which can be anything acceptable
 by M<dataToXML()>: a M<XML::LibXML::Element>, XML as string or ref-string,
 filename, filehandle or known namespace.
@@ -216,10 +217,10 @@ sub from($@)
 
 =section Accessors
 
-=method version
+=method version 
 GML version, for instance '3.2.1'.
 
-=method direction
+=method direction 
 Returns 'READER', 'WRITER', or 'RW'.
 =cut
 
@@ -230,9 +231,9 @@ sub direction() {shift->{GG_dir}}
 
 =section Compilers
 
-=method template 'PERL'|'XML', TYPE, OPTIONS
+=method template 'PERL'|'XML', $type, %options
 See M<XML::Compile::Schema::template()>.  This will create an example
-of the data-structure based on GML.  All OPTIONS are passed to the
+of the data-structure based on GML.  All %options are passed to the
 template generator, the only reason to have this method, is to avoid
 the need to collect all the GML XML files yourself.
 
@@ -260,10 +261,10 @@ the need to collect all the GML XML files yourself.
 
 =section Administration
 
-=method printIndex [FILEHANDLE], OPTIONS
+=method printIndex [$fh], %options
 List all the elements which can be produced with the schema.  By default,
 this only shows the elements and excludes the abstract elements from
-the list.  The selected FILEHANDLE is the default to print to.
+the list.  The selected $fh is the default to print to.
 =cut
 
 sub printIndex(@)

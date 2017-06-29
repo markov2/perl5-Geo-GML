@@ -27,12 +27,12 @@ is partial: please help with providing me with examples.
 
 =section Helpers
 
-=method GPtoGML OBJECT, OPTIONS
+=method GPtoGML $object, %options
 
 =option  srs SRS-name
 =default srs <from OBJECT>
 Overrule the projection name as found in the M<Geo::Point> object, which
-is just a simple label.  Be sure that your OBJECT is in the correct
+is just a simple label.  Be sure that your $object is in the correct
 projection, for instance via
 
    $gml->GPtoGML($gp->in('wgs84'), srs => 'EPGS:4326');
@@ -87,16 +87,13 @@ sub _gml2_space($$)
     # wrong: Space can contain other objects as well.
     my @members;
     foreach my $c ($space->components)
-    {   my $outer = $self->_gml2_line($c->geoOuter, $args);
-        my @inner = map { $self->_gml2_line($_, $args) } $c->geoInner;
-        my %poly  = ( gml_outerBoundaryIs => $outer
-                    , gml_innerBoundaryIs => \@inner);
-        push @members, +{ gml_polygonMember => {gml_Polygon => \%poly} };
+    {   $c = Geo::Surface->new($c) if $c->isa('Geo::Line');
+        push @members, { gml_polygonMember => $self->_gml2_surface($c, $args) };
     }
 
    +{ gml_MultiPolygon =>
       { seq_gml_polygonMember => \@members
-      , srsName => $args->{_srsName}
+       , srsName => $args->{_srsName}
       }
     };
 }
@@ -105,7 +102,8 @@ sub _gml2_surface($$)
 {   my ($self, $surface, $args) = @_;
 
     my $outer = $self->_gml2_line($surface->geoOuter, $args);
-    my @inner = map { $self->_gml2_line($_, $args) } $surface->geoInner;
+    my @inner = map $self->_gml2_line($_, $args), $surface->geoInner;
+
     my %poly  = ( gml_outerBoundaryIs => $outer
                 , gml_innerBoundaryIs => \@inner);
    +{ gml_Polygon => \%poly
@@ -118,7 +116,7 @@ sub _gml2_line($$)
     defined $line or return;
 
     my ($cs, $ts) = (',', ' ');
-    my $coords = join $ts, map {$_->[0].$cs.$_->[1] } $line->points;
+    my $coords = join $ts, map $_->[0].$cs.$_->[1], $line->points;
 
    +{ gml_LinearRing =>
       { gml_coordinates =>
@@ -143,7 +141,7 @@ sub _gml2_point($$)
 
 sub _gml2_shape($$)
 {   my ($self, $shape, $args) = @_;
-    panic "GML2 shape not implemented yet";
+    panic "object type ".(ref $shape). "not implemented yet";
 }
 
 #
@@ -155,10 +153,11 @@ sub _gml3_space($$)
     my @members;
 
     foreach my $c ($space->components)
-    {   my $outer = $self->_gml3_line($c->geoOuter, $args);
-        my @inner = map { $self->_gml3_line($_, $args) } $c->geoInner;
-        my %poly  = (gml_exterior => $outer, gml_interior => \@inner);
-        push @members, +{ gml_Polygon => \%poly };
+    {  $c = Geo::Surface->new($c) if $c->isa('Geo::Line');
+       push @members, $self->_gml3_surface($c, $args);
+#         , $c->isa('Geo::Line')
+#         ? $self->_gml3_line($c, $args)
+#         : $self->_gml3_surface($c, $args);
     }
 
     my $surftype =
@@ -176,7 +175,7 @@ sub _gml3_surface($$)
     my @members;
 
     my $outer = $self->_gml3_line($surface->geoOuter, $args);
-    my @inner = map { $self->_gml3_line($_, $args) } $surface->geoInner;
+    my @inner = map $self->_gml3_line($_, $args), $surface->geoInner;
     my %poly  = (gml_exterior => $outer, gml_interior => \@inner);
     +{ gml_Polygon => \%poly };
 }
@@ -187,8 +186,8 @@ sub _gml3_line($$)
 
     my @points = $line->points;
     my @coords = $line->proj4->isLatlong
-       ? (map { ($_->[1], $_->[0]) } @points)
-       : (map { ($_->[0], $_->[1]) } @points);
+       ? (map +($_->[1], $_->[0]), @points)
+       : (map +($_->[0], $_->[1]), @points);
 
    +{ gml_LinearRing =>
       { gml_posList => { _ => \@coords, count => scalar(@points) } }
@@ -207,7 +206,7 @@ sub _gml3_point($$)
 
 sub _gml3_shape($$)
 {   my ($self, $shape, $args) = @_;
-    panic "Not implemented yet";
+    panic "object type ".(ref $shape). "not implemented yet";
 }
 
 1;
