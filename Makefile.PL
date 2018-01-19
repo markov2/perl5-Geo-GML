@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
 use 5.010;
 
-my $version = '0.18';
+my $version = '0.19';
 
 my %prereq  =
   ( XML::Compile         => '1.59'
@@ -41,7 +41,7 @@ DISTDIR         = ../public_html/geo-gml/source
 EXTENDS         = ../../perl/XMLCache:../../perl/XMLCompile
 
 # for POD
-FIRST_YEAR      = 2008
+FIRST_YEAR      = 2008-2009,2018
 EMAIL           = markov@cpan.org
 WEBSITE         = http://perl.overmeer.net/CPAN/
 __POSTAMBLE
