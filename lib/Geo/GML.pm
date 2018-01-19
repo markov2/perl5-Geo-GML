@@ -1,13 +1,17 @@
-use warnings;
-use strict;
+# This code is part of distribution Geo::GML.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Geo::GML;
 use base 'XML::Compile::Cache';
 
+use warnings;
+use strict;
+
 use Geo::GML::Util;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
-use XML::Compile::Util  qw/unpack_type pack_type type_of_node/;
+use XML::Compile::Util  qw/unpack_type pack_type type_of_node SCHEMA2001/;
 use File::Glob          qw/bsd_glob/;
 
 # map namespace always to the newest implementation of the protocol
@@ -18,28 +22,20 @@ my %ns2version =
 
 # list all available versions
 my %info =
-  ( '2.0.0'   => { prefixes => {gml => NS_GML_200}
-                 , schemas  => [ 'gml2.0.0/*.xsd' ] }
-  , '2.1.1'   => { prefixes => {gml => NS_GML_211}
-                 , schemas  => [ 'gml2.1.1/*.xsd' ] }
-  , '2.1.2'   => { prefixes => {gml => NS_GML_212}
-                 , schemas  => [ 'gml2.1.2/*.xsd' ] }
-  , '2.1.2.0' => { prefixes => {gml => NS_GML_2120}
-                 , schemas  => [ 'gml2.1.2.0/*.xsd' ] }
-  , '2.1.2.1' => { prefixes => {gml => NS_GML_2121}
-                 , schemas  => [ 'gml2.1.2.1/*.xsd' ] }
+  ( '2.1.2'   => { prefixes => {gml => NS_GML_212}
+                 , schemas  => [ 'gml-2.1.2/*.xsd' ] }
   , '3.0.0'   => { prefixes => {gml => NS_GML_300, smil => NS_SMIL_20}
-                 , schemas  => [ 'gml3.0.0/*/*.xsd' ] }
+                 , schemas  => [ 'gml-3.0.0/*/*.xsd' ] }
   , '3.0.1'   => { prefixes => {gml => NS_GML_301, smil => NS_SMIL_20}
-                 , schemas  => [ 'gml3.0.1/*/*.xsd' ] }
+                 , schemas  => [ 'gml-3.0.1/*/*.xsd' ] }
   , '3.1.0'   => { prefixes => {gml => NS_GML_310, smil => NS_SMIL_20}
-                 , schemas  => [ 'gml3.1.0/*/*.xsd' ] }
+                 , schemas  => [ 'gml-3.1.0/*/*.xsd' ] }
   , '3.1.1'   => { prefixes => {gml => NS_GML_311, smil => NS_SMIL_20
                                ,gmlsf => NS_GML_311_SF}
-                 , schemas  => [ 'gml3.1.1/{base,smil,xlink}/*.xsd'
+                 , schemas  => [ 'gml-3.1.1/{base,smil,xlink}/*.xsd'
                                , 'gml3.1.1/profile/*/*/*.xsd' ] }
   , '3.2.1'   => { prefixes => {gml => NS_GML_321, smil => NS_SMIL_20 }
-                 , schemas  => [ 'gml3.2.1/*.xsd', 'gml3.1.1/smil/*.xsd' ] }
+                 , schemas  => [ 'gml-3.2.1/*.xsd', 'gml-3.1.1/smil/*.xsd' ] }
   );
 
 # This list must be extended, but I do not know what people need.
@@ -85,11 +81,7 @@ which versions you understand and produce.
 If you need the <b>most recent</b> version of GML, then you get involved
 with the ISO19139 standard.  See CPAN module M<Geo::ISO19139>.
 
-The first releases of this module will not powerful, but hopefully
-people contribute.  For instance, an example conversion script between
-various versions is very welcome!  It would be nice to help each other.
-I will clean-up the implementation, to make it publishable, but do not
-have the knowledge about what is needed.
+B<When you need GML3.3 features, then please contact me>
 
 =chapter METHODS
 
@@ -159,11 +151,17 @@ sub init($)
     $self->{GG_version} = $version;    
     my $info = $info{$version};
 
-    $self->addPrefixes(xlink => NS_XLINK_1999, %{$info->{prefixes}});
+    $self->addPrefixes
+		( xlink => NS_XLINK_1999
+		, xsd   => SCHEMA2001,
+		, %{$info->{prefixes}}
+		);
 
     (my $xsd = __FILE__) =~ s!\.pm!/xsd!;
     my @xsds = map bsd_glob("$xsd/$_")
-      , @{$info->{schemas} || []}, 'xlink1.0.0/*.xsd';
+      , @{$info->{schemas} || []}
+      , 'xlink-1.1/*.xsd'
+      , 'xml-1999/*.xsd';
 
     $self->importDefinitions(\@xsds);
     $self;

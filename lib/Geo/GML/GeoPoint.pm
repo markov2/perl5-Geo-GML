@@ -1,8 +1,12 @@
-use warnings;
-use strict;
+# This code is part of distribution Geo::GML.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 # extends the implementation of Geo::GML, autoloaded
 package Geo::GML;
+
+use warnings;
+use strict;
 
 use Log::Report 'geo-gml', syntax => 'SHORT';
 use Geo::Point  ();
@@ -107,7 +111,6 @@ sub _gml2_surface($$)
     my %poly  = ( gml_outerBoundaryIs => $outer
                 , gml_innerBoundaryIs => \@inner);
    +{ gml_Polygon => \%poly
-    , srsName     => $args->{_srsName}
     };
 }
 

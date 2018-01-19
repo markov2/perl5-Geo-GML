@@ -1,14 +1,14 @@
-use warnings;
-use strict;
+# This code is part of distribution Geo::GML.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md
+# Copyright Mark Overmeer.  Licensed under the same terms as Perl itself.
 
 package Geo::GML::Util;
 use base 'Exporter';
 
-our @gml200  = qw/NS_GML_200  NS_XLINK_1999/;
-our @gml211  = qw/NS_GML_211  NS_XLINK_1999/;
+use warnings;
+use strict;
+
 our @gml212  = qw/NS_GML_212  NS_XLINK_1999/;
-our @gml2120 = qw/NS_GML_2120 NS_XLINK_1999/;
-our @gml2121 = qw/NS_GML_2121 NS_XLINK_1999/;
 our @gml300  = qw/NS_GML_300  NS_XLINK_1999 NS_SMIL_20/;
 our @gml301  = qw/NS_GML_301  NS_XLINK_1999 NS_SMIL_20/;
 our @gml310  = qw/NS_GML_310  NS_XLINK_1999 NS_SMIL_20/;
@@ -21,16 +21,12 @@ our @proto   = qw/NS_GML NS_GML_32 NS_GML_SF/;
 
 our @EXPORT  =
  ( @proto
- , @gml200, @gml211, @gml212, @gml2120, @gml2121
- , @gml300, @gml301, @gml310, @gml311, @gml321
+ , @gml212, @gml300, @gml301, @gml310, @gml311
+ , @gml321
  );
 
 our %EXPORT_TAGS =
- ( gml200    => \@gml200
- , gml211    => \@gml211
- , gml212    => \@gml212
- , gml2120   => \@gml2120
- , gml2121   => \@gml2121
+ ( gml212    => \@gml212
  , gml300    => \@gml300
  , gml301    => \@gml301
  , gml310    => \@gml310
@@ -74,11 +70,7 @@ use constant NS_XLINK_1999 => 'http://www.w3.org/1999/xlink';
 
 The following tags define all what you need per version.
 
-  :gml200    2.0.0
-  :gml211    2.1.1
   :gml212    2.1.2
-  :gml2120   2.1.2.0
-  :gml2121   2.1.2.1
   :gml300    3.0.0
   :gml301    3.0.1
   :gml310    3.1.0
@@ -87,11 +79,7 @@ The following tags define all what you need per version.
 
 =cut
 
-use constant NS_GML_200    => NS_GML;
-use constant NS_GML_211    => NS_GML;
 use constant NS_GML_212    => NS_GML;
-use constant NS_GML_2120   => NS_GML;
-use constant NS_GML_2121   => NS_GML;
 use constant NS_GML_300    => NS_GML;
 use constant NS_GML_301    => NS_GML;
 use constant NS_GML_310    => NS_GML;
