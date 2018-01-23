@@ -178,8 +178,8 @@ sub declare(@)
     $self;
 }
 
-=c_method from $xmldata, %options
-Read a EOP structure from a data source, which can be anything acceptable
+=ci_method from $xmldata, %options
+Read a GML structure from a data source, which can be anything acceptable
 by M<dataToXML()>: a M<XML::LibXML::Element>, XML as string or ref-string,
 filename, filehandle or known namespace.
 
@@ -195,11 +195,12 @@ See F<examples/read_gml.pl>
 =cut
 
 sub from($@)
-{   my ($class, $data, %args) = @_;
-    my $xml = XML::Compile->dataToXML($data);
+{   my ($thing, $data, %args) = @_;
+	my $class = ref $thing || $thing;
 
-    my $top = type_of_node $xml;
-    my $ns  = (unpack_type $top)[0];
+    my $xml   = XML::Compile->dataToXML($data);
+    my $top   = type_of_node $xml;
+    my $ns    = (unpack_type $top)[0];
 
     my $version = $ns2version{$ns}
         or error __x"unknown GML version with namespace {ns}", ns => $ns;
