@@ -1,7 +1,7 @@
 # Geo::GML
 
   * My extended documentation: <http://perl.overmeer.net/CPAN/>
-  * Development via GitHub: <https://github.com/markov2/perl-Geo-GML>
+  * Development via GitHub: <https://github.com/markov2/perl5-Geo-GML>
   * Download from CPAN: <ftp://ftp.cpan.org/pub/CPAN/authors/id/M/MA/MARKOV/>
   * Indexed from CPAN: <http://search.cpan.org/~markov/Geo-GML/>
     and <https://metacpan.org/release/Geo-GML>
